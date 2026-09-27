@@ -1,0 +1,2171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Calculator</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        :root {
+            --primary: #635bff;
+            --primary-dark: #5146e5;
+            --purple: #7c3aed;
+            --text-dark: #29306f;
+            --text: #475569;
+            --text-light: #64748b;
+        }
+
+        body {
+            min-height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+
+            padding: 32px 20px;
+
+            background:
+                radial-gradient(
+                    circle at 5% 10%,
+                    rgba(130, 145, 255, 0.45),
+                    transparent 25%
+                ),
+                radial-gradient(
+                    circle at 95% 90%,
+                    rgba(180, 135, 255, 0.35),
+                    transparent 25%
+                ),
+                linear-gradient(
+                    135deg,
+                    #eaf0ff,
+                    #eef2ff,
+                    #e9e9ff
+                );
+
+            color: var(--text);
+
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+
+            position: fixed;
+
+            width: 280px;
+            height: 280px;
+
+            top: -120px;
+            left: -100px;
+
+            background: rgba(103, 88, 255, 0.20);
+
+            border-radius: 50%;
+
+            filter: blur(60px);
+
+            pointer-events: none;
+        }
+
+        body::after {
+            content: "";
+
+            position: fixed;
+
+            width: 320px;
+            height: 320px;
+
+            right: -130px;
+            bottom: -120px;
+
+            background: rgba(154, 107, 255, 0.22);
+
+            border-radius: 50%;
+
+            filter: blur(70px);
+
+            pointer-events: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1110px;
+
+            padding: 36px 40px 42px;
+
+            background: rgba(255, 255, 255, 0.67);
+
+            border: 1px solid rgba(255, 255, 255, 0.85);
+
+            border-radius: 28px;
+
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+
+            box-shadow:
+                0 25px 70px rgba(65, 70, 140, 0.15),
+                0 5px 20px rgba(65, 70, 140, 0.06);
+
+            position: relative;
+
+            z-index: 1;
+        }
+
+        /* HEADER */
+
+        .header {
+            text-align: center;
+            margin-bottom: 34px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+
+            margin: 0 auto 18px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 22px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #635bff,
+                    #7c3aed
+                );
+
+            box-shadow:
+                0 15px 30px rgba(99, 91, 255, 0.28);
+
+            font-size: 40px;
+            line-height: 1;
+        }
+
+        .header h1 {
+            color: var(--text-dark);
+
+            font-size: 36px;
+            font-weight: 700;
+
+            letter-spacing: -0.8px;
+
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 16px;
+        }
+
+        /* CALCULATOR */
+
+        .calculator-panel {
+            background: rgba(255, 255, 255, 0.62);
+
+            border: 1px solid rgba(255, 255, 255, 0.85);
+
+            border-radius: 24px;
+
+            padding: 30px;
+
+            box-shadow:
+                0 10px 30px rgba(70, 75, 130, 0.05);
+
+            margin-bottom: 26px;
+        }
+
+        /* INPUTS */
+
+        .input-section {
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 22px;
+
+            margin-bottom: 25px;
+        }
+
+        .input-box {
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 9px;
+        }
+
+        .input-box label {
+            color: #475569;
+
+            font-size: 14px;
+
+            font-weight: 700;
+        }
+
+        .input-box input {
+            width: 100%;
+
+            height: 60px;
+
+            padding: 0 18px;
+
+            border-radius: 14px;
+
+            border: 2px solid #dce2ef;
+
+            outline: none;
+
+            background: rgba(255, 255, 255, 0.9);
+
+            color: #334155;
+
+            font-size: 17px;
+
+            transition: all 0.25s ease;
+        }
+
+        .input-box input::placeholder {
+            color: #94a3b8;
+        }
+
+        .input-box input:hover {
+            border-color: #c7ccef;
+        }
+
+        .input-box input:focus {
+            border-color: var(--primary);
+
+            background: white;
+
+            box-shadow:
+                0 0 0 4px rgba(99, 91, 255, 0.10);
+
+            transform: translateY(-1px);
+        }
+
+        /* BUTTONS */
+
+        .buttons {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 13px;
+        }
+
+        .buttons button {
+            min-height: 57px;
+
+            border: none;
+
+            border-radius: 14px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #635bff,
+                    #7438e8
+                );
+
+            color: white;
+
+            font-size: 15px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 8px 18px rgba(99, 91, 255, 0.20);
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                filter 0.2s ease;
+        }
+
+        .buttons button:hover {
+            transform: translateY(-3px);
+
+            box-shadow:
+                0 12px 24px rgba(99, 91, 255, 0.28);
+
+            filter: brightness(1.04);
+        }
+
+        .buttons button:active {
+            transform: translateY(0) scale(0.98);
+
+            box-shadow:
+                0 5px 12px rgba(99, 91, 255, 0.20);
+        }
+
+        /* SINGLE NUMBER BUTTONS */
+
+        .buttons .single-number-btn {
+            background:
+                linear-gradient(
+                    135deg,
+                    #8b5cf6,
+                    #a855f7
+                );
+
+            box-shadow:
+                0 8px 18px rgba(139, 92, 246, 0.20);
+        }
+
+        .buttons .single-number-btn:hover {
+            box-shadow:
+                0 12px 24px rgba(139, 92, 246, 0.28);
+
+            filter: brightness(1.05);
+        }
+
+        .buttons .single-number-btn:active {
+            box-shadow:
+                0 5px 12px rgba(139, 92, 246, 0.20);
+        }
+
+        /* RESULT */
+
+        .result-card {
+            min-height: 150px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            justify-content: center;
+
+            align-items: center;
+
+            text-align: center;
+
+            padding: 25px;
+
+            margin-bottom: 20px;
+
+            border-radius: 22px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(244, 245, 255, 0.95),
+                    rgba(248, 247, 255, 0.95)
+                );
+
+            border: 1px solid #d8ddff;
+
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.8);
+        }
+
+        .result-card h2 {
+            color: #6366f1;
+
+            font-size: 14px;
+
+            font-weight: 800;
+
+            letter-spacing: 2px;
+
+            text-transform: uppercase;
+
+            margin-bottom: 14px;
+        }
+
+        #resultValue {
+            color: #30358b;
+
+            font-size: 42px;
+
+            font-weight: 800;
+
+            line-height: 1.2;
+
+            max-width: 100%;
+
+            word-break: break-word;
+        }
+
+        /* MESSAGE */
+
+        #message {
+            min-height: 0;
+
+            width: 100%;
+
+            padding: 0;
+
+            margin: 0;
+
+            text-align: center;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            border-radius: 12px;
+
+            opacity: 0;
+
+            visibility: hidden;
+
+            transform: translateY(-8px);
+
+            transition: all 0.3s ease;
+        }
+
+        #message.success {
+            min-height: 48px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 12px 18px;
+
+            margin-bottom: 20px;
+
+            opacity: 1;
+
+            visibility: visible;
+
+            transform: translateY(0);
+
+            color: #15803d;
+
+            background: #ecfdf3;
+
+            border: 1px solid #bbf7d0;
+        }
+
+        #message.error {
+            min-height: 48px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 12px 18px;
+
+            margin-bottom: 20px;
+
+            opacity: 1;
+
+            visibility: visible;
+
+            transform: translateY(0);
+
+            color: #b91c1c;
+
+            background: #fef2f2;
+
+            border: 1px solid #fecaca;
+        }
+
+        /* HISTORY */
+
+        .history-section {
+            margin-top: 28px;
+        }
+
+        .history-header {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 17px;
+        }
+
+        .history-header h2 {
+            color: var(--text-dark);
+
+            font-size: 23px;
+
+            font-weight: 700;
+        }
+
+        .clear-btn {
+            border: none;
+
+            min-height: 44px;
+
+            padding: 0 17px;
+
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ef4444,
+                    #dc2626
+                );
+
+            color: white;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 7px 15px rgba(220, 38, 38, 0.16);
+
+            transition: all 0.2s ease;
+        }
+
+        .clear-btn:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 10px 20px rgba(220, 38, 38, 0.22);
+        }
+
+        .clear-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* HISTORY LIST */
+
+        #history {
+            max-height: 330px;
+
+            overflow-y: auto;
+
+            padding-right: 4px;
+        }
+
+        .history-item {
+            display: grid;
+
+            grid-template-columns:
+                1fr 35px 1fr;
+
+            align-items: center;
+
+            gap: 10px;
+
+            min-height: 58px;
+
+            padding: 12px 17px;
+
+            margin-bottom: 10px;
+
+            border-radius: 14px;
+
+            background: rgba(255, 255, 255, 0.76);
+
+            border: 1px solid #e6e9f3;
+
+            box-shadow:
+                0 4px 12px rgba(60, 65, 110, 0.04);
+
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            transform: translateX(2px);
+
+            border-color: #d9ddff;
+
+            box-shadow:
+                0 7px 18px rgba(60, 65, 110, 0.07);
+        }
+
+        .history-operation {
+            color: #475569;
+
+            font-size: 15px;
+
+            font-weight: 600;
+
+            word-break: break-word;
+        }
+
+        .history-equals {
+            text-align: center;
+
+            color: #94a3b8;
+
+            font-weight: 700;
+        }
+
+        .history-result {
+            color: #373c91;
+
+            font-size: 16px;
+
+            font-weight: 800;
+
+            text-align: right;
+
+            word-break: break-word;
+        }
+
+        .empty-history {
+            text-align: center;
+
+            padding: 35px 20px;
+
+            border-radius: 16px;
+
+            background: rgba(255, 255, 255, 0.55);
+
+            border: 1px dashed #d7dced;
+
+            color: #94a3b8;
+
+            font-size: 14px;
+        }
+
+        /* SCROLLBAR */
+
+        #history::-webkit-scrollbar {
+            width: 7px;
+        }
+
+        #history::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #history::-webkit-scrollbar-thumb {
+            background: #c8ccef;
+
+            border-radius: 20px;
+        }
+
+        #history::-webkit-scrollbar-thumb:hover {
+            background: #aeb3e8;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 850px) {
+
+            .container {
+                padding: 30px 25px 35px;
+            }
+
+            .buttons {
+                grid-template-columns:
+                    repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 650px) {
+
+            body {
+                padding: 18px 12px;
+            }
+
+            .container {
+                padding: 25px 18px 30px;
+
+                border-radius: 22px;
+            }
+
+            .header {
+                margin-bottom: 25px;
+            }
+
+            .logo {
+                width: 68px;
+                height: 68px;
+
+                font-size: 34px;
+
+                border-radius: 18px;
+            }
+
+            .header h1 {
+                font-size: 29px;
+            }
+
+            .header p {
+                font-size: 14px;
+            }
+
+            .calculator-panel {
+                padding: 20px;
+
+                border-radius: 19px;
+            }
+
+            .input-section {
+                grid-template-columns: 1fr;
+
+                gap: 16px;
+            }
+
+            .buttons {
+                grid-template-columns:
+                    repeat(2, 1fr);
+
+                gap: 10px;
+            }
+
+            .buttons button {
+                min-height: 53px;
+
+                font-size: 14px;
+            }
+
+            #resultValue {
+                font-size: 34px;
+            }
+
+            .history-header h2 {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 420px) {
+
+            .container {
+                padding: 20px 14px 25px;
+            }
+
+            .calculator-panel {
+                padding: 15px;
+            }
+
+            .buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .buttons button {
+                width: 100%;
+            }
+
+            .history-item {
+                grid-template-columns:
+                    1fr 25px 1fr;
+
+                padding: 11px;
+
+                font-size: 13px;
+            }
+
+            .clear-btn {
+                padding: 0 12px;
+
+                font-size: 13px;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <div class="container">
+
+        <!-- HEADER -->
+
+        <div class="header">
+
+            <div class="logo">
+                🧮
+            </div>
+
+            <h1>
+                Smart Calculator
+            </h1>
+
+            <p>
+                Simple and smooth calculation system
+            </p>
+
+        </div>
+
+
+        <!-- CALCULATOR -->
+
+        <div class="calculator-panel">
+
+            <!-- INPUTS -->
+
+            <div class="input-section">
+
+                <div class="input-box">
+
+                    <label for="num1">
+                        First Number
+                    </label>
+
+                    <input
+                        type="number"
+                        id="num1"
+                        placeholder="Enter first number"
+                        step="any"
+                    >
+
+                </div>
+
+
+                <div class="input-box">
+
+                    <label for="num2">
+                        Second Number
+                    </label>
+
+                    <input
+                        type="number"
+                        id="num2"
+                        placeholder="Enter second number"
+                        step="any"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- BUTTONS -->
+
+            <div class="buttons">
+
+                <!-- TWO NUMBER OPERATIONS -->
+
+                <button type="button" onclick="calculate('add')">
+                    + Add
+                </button>
+
+                <button type="button" onclick="calculate('subtract')">
+                    − Subtract
+                </button>
+
+                <button type="button" onclick="calculate('multiply')">
+                    × Multiply
+                </button>
+
+                <button type="button" onclick="calculate('division')">
+                    ÷ Division
+                </button>
+
+                <button type="button" onclick="calculate('power')">
+                    ^ Power
+                </button>
+
+                <button type="button" onclick="calculate('modulus')">
+                    % Modulus
+                </button>
+
+                <button type="button" onclick="calculate('max')">
+                    Maximum
+                </button>
+
+                <button type="button" onclick="calculate('min')">
+                    Minimum
+                </button>
+
+
+                <!-- SINGLE NUMBER OPERATIONS -->
+
+                <button
+                    type="button"
+                    class="single-number-btn"
+                    onclick="calculate('square')">
+
+                    x² Square
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="single-number-btn"
+                    onclick="calculate('squareRoot')">
+
+                    √ Square Root
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="single-number-btn"
+                    onclick="calculate('absolute')">
+
+                    |x| Absolute
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="single-number-btn"
+                    onclick="calculate('factorial')">
+
+                    ! Factorial
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- RESULT -->
+
+        <div class="result-card">
+
+            <h2>
+                Result
+            </h2>
+
+            <div id="resultValue">
+                0
+            </div>
+
+        </div>
+
+
+        <!-- MESSAGE -->
+
+        <div
+            id="message"
+            aria-live="polite">
+        </div>
+
+
+        <!-- HISTORY -->
+
+        <div class="history-section">
+
+            <div class="history-header">
+
+                <h2>
+                    Calculation History
+                </h2>
+
+                <button
+                    type="button"
+                    class="clear-btn"
+                    onclick="clearHistory()">
+
+                    🗑 Clear History
+
+                </button>
+
+            </div>
+
+
+            <div id="history">
+
+                <div class="empty-history">
+                    No calculation history
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- JAVASCRIPT -->
+
+    <script>
+
+        /*
+         * =====================================================
+         * API
+         * =====================================================
+         */
+
+        const API_URL = "/calculator";
+
+
+        /*
+         * =====================================================
+         * OPERATIONS
+         * =====================================================
+         */
+
+        const twoNumberOperations = [
+            "add",
+            "subtract",
+            "multiply",
+            "division",
+            "power",
+            "modulus",
+            "max",
+            "min"
+        ];
+
+
+        const oneNumberOperations = [
+            "square",
+            "squareRoot",
+            "absolute",
+            "factorial"
+        ];
+
+
+        let messageTimer;
+
+
+        /*
+         * =====================================================
+         * CALCULATE
+         * =====================================================
+         */
+
+        async function calculate(operation) {
+
+            const num1Input =
+                document
+                    .getElementById("num1")
+                    .value
+                    .trim();
+
+
+            const num2Input =
+                document
+                    .getElementById("num2")
+                    .value
+                    .trim();
+
+
+            let num1;
+            let num2;
+
+
+            /*
+             * =================================================
+             * SINGLE NUMBER OPERATIONS
+             * =================================================
+             */
+
+            if (oneNumberOperations.includes(operation)) {
+
+                /*
+                 * For single-number operations,
+                 * use First Number if entered.
+                 *
+                 * Otherwise use Second Number.
+                 */
+
+                if (num1Input !== "") {
+
+                    num1 = Number(num1Input);
+
+                }
+
+                else if (num2Input !== "") {
+
+                    num1 = Number(num2Input);
+
+                }
+
+                else {
+
+                    showMessage(
+                        "Please enter a number",
+                        "error"
+                    );
+
+                    return;
+                }
+
+
+                /*
+                 * IMPORTANT:
+                 *
+                 * Send the same value as num2 also.
+                 *
+                 * This is useful when CalculatorRequest
+                 * validates both num1 and num2.
+                 */
+
+                num2 = num1;
+
+            }
+
+
+            /*
+             * =================================================
+             * TWO NUMBER OPERATIONS
+             * =================================================
+             */
+
+            else {
+
+                if (
+                    num1Input === "" ||
+                    num2Input === ""
+                ) {
+
+                    showMessage(
+                        "Please enter both numbers",
+                        "error"
+                    );
+
+                    return;
+                }
+
+
+                num1 = Number(num1Input);
+
+                num2 = Number(num2Input);
+
+            }
+
+
+            /*
+             * =================================================
+             * VALIDATE NUM1
+             * =================================================
+             */
+
+            if (!Number.isFinite(num1)) {
+
+                showMessage(
+                    "Please enter a valid number",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            /*
+             * =================================================
+             * VALIDATE NUM2
+             * =================================================
+             */
+
+            if (!Number.isFinite(num2)) {
+
+                showMessage(
+                    "Please enter a valid second number",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            /*
+             * =================================================
+             * REQUEST BODY
+             * =================================================
+             *
+             * Every controller method receives:
+             *
+             * @RequestBody CalculatorRequest request
+             *
+             * Therefore send both fields.
+             *
+             */
+
+            const requestBody = {
+                num1: num1,
+                num2: num2
+            };
+
+
+            console.log("Operation:", operation);
+
+            console.log(
+                "Request:",
+                requestBody
+            );
+
+
+            /*
+             * =================================================
+             * SEND REQUEST
+             * =================================================
+             */
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_URL}/${operation}`,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    requestBody
+                                )
+                        }
+                    );
+
+
+                /*
+                 * =================================================
+                 * READ RESPONSE
+                 * =================================================
+                 */
+
+                const responseText =
+                    await response.text();
+
+
+                let data = null;
+
+
+                if (
+                    responseText.trim() !== ""
+                ) {
+
+                    try {
+
+                        data =
+                            JSON.parse(
+                                responseText
+                            );
+
+                    }
+
+                    catch {
+
+                        data =
+                            responseText.trim();
+
+                    }
+
+                }
+
+
+                /*
+                 * =================================================
+                 * ERROR
+                 * =================================================
+                 */
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        extractErrorMessage(data)
+                    );
+
+                }
+
+
+                /*
+                 * =================================================
+                 * GET RESULT
+                 * =================================================
+                 */
+
+                const result =
+                    extractResult(data);
+
+
+                if (
+                    result === null ||
+                    result === undefined ||
+                    result === ""
+                ) {
+
+                    showMessage(
+                        "Calculation completed successfully",
+                        "success"
+                    );
+
+                }
+
+                else {
+
+                    displayResult(result);
+
+                    showMessage(
+                        "Calculation successful",
+                        "success"
+                    );
+
+                }
+
+
+                /*
+                 * =================================================
+                 * LOAD HISTORY
+                 * =================================================
+                 */
+
+                await loadHistory();
+
+            }
+
+
+            /*
+             * =================================================
+             * CATCH ERROR
+             * =================================================
+             */
+
+            catch (error) {
+
+                console.error(
+                    "Calculation error:",
+                    error
+                );
+
+
+                if (
+                    error instanceof TypeError
+                ) {
+
+                    showMessage(
+                        "Unable to connect to the server",
+                        "error"
+                    );
+
+                    return;
+                }
+
+
+                showMessage(
+                    error.message ||
+                    "Something went wrong",
+                    "error"
+                );
+
+            }
+
+        }
+
+
+        /*
+         * =====================================================
+         * EXTRACT ERROR MESSAGE
+         * =====================================================
+         */
+
+        function extractErrorMessage(data) {
+
+            if (
+                data === null ||
+                data === undefined ||
+                data === ""
+            ) {
+
+                return "Server returned an empty error response";
+
+            }
+
+
+            if (
+                typeof data === "string"
+            ) {
+
+                return cleanServerMessage(data);
+
+            }
+
+
+            if (data.message) {
+
+                return cleanServerMessage(
+                    data.message
+                );
+
+            }
+
+
+            if (data.error) {
+
+                return cleanServerMessage(
+                    data.error
+                );
+
+            }
+
+
+            if (data.detail) {
+
+                return cleanServerMessage(
+                    data.detail
+                );
+
+            }
+
+
+            if (
+                Array.isArray(data.errors)
+            ) {
+
+                const messages =
+                    data.errors
+                        .map(error => {
+
+                            if (
+                                typeof error === "string"
+                            ) {
+
+                                return error;
+
+                            }
+
+
+                            if (
+                                error &&
+                                error.message
+                            ) {
+
+                                return error.message;
+
+                            }
+
+
+                            return JSON.stringify(error);
+
+                        })
+                        .filter(
+                            message =>
+                                message &&
+                                message.trim() !== ""
+                        );
+
+
+                if (messages.length > 0) {
+
+                    return messages.join(", ");
+
+                }
+
+            }
+
+
+            if (
+                Array.isArray(data)
+            ) {
+
+                const messages =
+                    data.map(error => {
+
+                        if (
+                            typeof error === "string"
+                        ) {
+
+                            return error;
+
+                        }
+
+
+                        if (
+                            error &&
+                            error.message
+                        ) {
+
+                            return error.message;
+
+                        }
+
+
+                        return JSON.stringify(error);
+
+                    });
+
+
+                if (messages.length > 0) {
+
+                    return messages.join(", ");
+
+                }
+
+            }
+
+
+            if (data.status) {
+
+                if (data.statusText) {
+
+                    return `${data.status}: ${data.statusText}`;
+
+                }
+
+                return `Server error (${data.status})`;
+
+            }
+
+
+            try {
+
+                return JSON.stringify(data);
+
+            }
+
+            catch {
+
+                return "Unknown server error";
+
+            }
+
+        }
+
+
+        /*
+         * =====================================================
+         * CLEAN SERVER MESSAGE
+         * =====================================================
+         */
+
+        function cleanServerMessage(message) {
+
+            if (!message) {
+
+                return "Unknown server error";
+
+            }
+
+
+            message =
+                String(message).trim();
+
+
+            if (
+                message
+                    .toLowerCase()
+                    .includes("<html")
+            ) {
+
+                const temp =
+                    document.createElement("div");
+
+
+                temp.innerHTML = message;
+
+
+                const visibleText =
+                    temp.textContent ||
+                    temp.innerText ||
+                    "";
+
+
+                if (
+                    visibleText.trim() !== ""
+                ) {
+
+                    return visibleText
+                        .replace(/\s+/g, " ")
+                        .trim();
+
+                }
+
+            }
+
+
+            return message;
+
+        }
+
+
+        /*
+         * =====================================================
+         * EXTRACT RESULT
+         * =====================================================
+         */
+
+        function extractResult(data) {
+
+            if (
+                data === null ||
+                data === undefined
+            ) {
+
+                return null;
+
+            }
+
+
+            /*
+             * CalculatorResponse probably returns:
+             *
+             * {
+             *     "result": ...
+             * }
+             *
+             */
+
+            if (
+                typeof data === "object" &&
+                data.result !== undefined
+            ) {
+
+                return data.result;
+
+            }
+
+
+            if (
+                typeof data === "number"
+            ) {
+
+                return data;
+
+            }
+
+
+            if (
+                typeof data === "string"
+            ) {
+
+                return data;
+
+            }
+
+
+            return null;
+
+        }
+
+
+        /*
+         * =====================================================
+         * DISPLAY RESULT
+         * =====================================================
+         */
+
+        function displayResult(result) {
+
+            document
+                .getElementById("resultValue")
+                .textContent = result;
+
+        }
+
+
+        /*
+         * =====================================================
+         * SHOW MESSAGE
+         * =====================================================
+         */
+
+        function showMessage(
+            message,
+            type,
+            duration = 5000
+        ) {
+
+            const messageElement =
+                document.getElementById("message");
+
+
+            clearTimeout(messageTimer);
+
+
+            messageElement.className = type;
+
+            messageElement.textContent = message;
+
+
+            messageElement.style.opacity = "1";
+
+            messageElement.style.visibility =
+                "visible";
+
+            messageElement.style.transform =
+                "translateY(0)";
+
+
+            messageTimer =
+                setTimeout(() => {
+
+                    messageElement.style.opacity =
+                        "0";
+
+                    messageElement.style.transform =
+                        "translateY(-8px)";
+
+
+                    setTimeout(() => {
+
+                        messageElement.className = "";
+
+                        messageElement.textContent = "";
+
+                        messageElement.style.visibility =
+                            "hidden";
+
+                    }, 300);
+
+                }, duration);
+
+        }
+
+
+        /*
+         * =====================================================
+         * LOAD HISTORY
+         * =====================================================
+         */
+
+        async function loadHistory() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_URL}/history`
+                    );
+
+
+                const responseText =
+                    await response.text();
+
+
+                let data = null;
+
+
+                if (
+                    responseText.trim() !== ""
+                ) {
+
+                    try {
+
+                        data =
+                            JSON.parse(
+                                responseText
+                            );
+
+                    }
+
+                    catch {
+
+                        data =
+                            responseText.trim();
+
+                    }
+
+                }
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        extractErrorMessage(data)
+                    );
+
+                }
+
+
+                if (
+                    !Array.isArray(data)
+                ) {
+
+                    displayHistory([]);
+
+                    return;
+
+                }
+
+
+                displayHistory(data);
+
+            }
+
+
+            catch (error) {
+
+                console.error(
+                    "History error:",
+                    error
+                );
+
+
+                document
+                    .getElementById("history")
+                    .innerHTML = `
+                        <div class="empty-history">
+                            ${escapeHtml(
+                                error.message ||
+                                "Unable to load history"
+                            )}
+                        </div>
+                    `;
+
+            }
+
+        }
+
+
+        /*
+         * =====================================================
+         * DISPLAY HISTORY
+         * =====================================================
+         */
+
+        function displayHistory(history) {
+
+            const historyElement =
+                document.getElementById("history");
+
+
+            if (
+                !Array.isArray(history) ||
+                history.length === 0
+            ) {
+
+                historyElement.innerHTML = `
+                    <div class="empty-history">
+                        No calculation history
+                    </div>
+                `;
+
+                return;
+
+            }
+
+
+            historyElement.innerHTML =
+                history
+                    .slice()
+                    .reverse()
+                    .map(item => {
+
+                        const operation =
+                            String(
+                                item.operation || ""
+                            ).toUpperCase();
+
+
+                        let expression;
+
+
+                        /*
+                         * SINGLE NUMBER
+                         */
+
+                        if (
+                            operation === "SQUARE"
+                        ) {
+
+                            expression =
+                                `${item.num1}²`;
+
+                        }
+
+
+                        else if (
+                            operation === "SQUARE ROOT"
+                        ) {
+
+                            expression =
+                                `√${item.num1}`;
+
+                        }
+
+
+                        else if (
+                            operation === "SQUAREROOT"
+                        ) {
+
+                            expression =
+                                `√${item.num1}`;
+
+                        }
+
+
+                        else if (
+                            operation === "ABSOLUTE"
+                        ) {
+
+                            expression =
+                                `|${item.num1}|`;
+
+                        }
+
+
+                        else if (
+                            operation === "FACTORIAL"
+                        ) {
+
+                            expression =
+                                `${item.num1}!`;
+
+                        }
+
+
+                        /*
+                         * TWO NUMBER
+                         */
+
+                        else {
+
+                            expression =
+                                `${item.num1} ` +
+                                `${getSymbol(operation)} ` +
+                                `${item.num2}`;
+
+                        }
+
+
+                        return `
+                            <div class="history-item">
+
+                                <div class="history-operation">
+
+                                    ${escapeHtml(
+                                        expression
+                                    )}
+
+                                </div>
+
+
+                                <div class="history-equals">
+                                    =
+                                </div>
+
+
+                                <div class="history-result">
+
+                                    ${escapeHtml(
+                                        String(
+                                            item.result
+                                        )
+                                    )}
+
+                                </div>
+
+                            </div>
+                        `;
+
+                    })
+                    .join("");
+
+        }
+
+
+        /*
+         * =====================================================
+         * OPERATION SYMBOL
+         * =====================================================
+         */
+
+        function getSymbol(operation) {
+
+            const symbols = {
+
+                ADD: "+",
+
+                SUBTRACT: "−",
+
+                MULTIPLY: "×",
+
+                DIVISION: "÷",
+
+                DIVIDE: "÷",
+
+                POWER: "^",
+
+                MODULUS: "%",
+
+                MAX: "max",
+
+                MIN: "min"
+
+            };
+
+
+            return symbols[operation] ||
+                operation;
+
+        }
+
+
+        /*
+         * =====================================================
+         * CLEAR HISTORY
+         * =====================================================
+         */
+
+        async function clearHistory() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_URL}/history`,
+                        {
+                            method: "DELETE"
+                        }
+                    );
+
+
+                const responseText =
+                    await response.text();
+
+
+                let data = null;
+
+
+                if (
+                    responseText.trim() !== ""
+                ) {
+
+                    try {
+
+                        data =
+                            JSON.parse(
+                                responseText
+                            );
+
+                    }
+
+                    catch {
+
+                        data =
+                            responseText.trim();
+
+                    }
+
+                }
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        extractErrorMessage(data)
+                    );
+
+                }
+
+
+                let successMessage =
+                    "Calculation history cleared successfully";
+
+
+                if (
+                    typeof data === "string" &&
+                    data.trim() !== ""
+                ) {
+
+                    successMessage = data;
+
+                }
+
+
+                else if (
+                    data &&
+                    data.message
+                ) {
+
+                    successMessage =
+                        data.message;
+
+                }
+
+
+                showMessage(
+                    successMessage,
+                    "success"
+                );
+
+
+                await loadHistory();
+
+            }
+
+
+            catch (error) {
+
+                console.error(
+                    "Clear history error:",
+                    error
+                );
+
+
+                showMessage(
+                    error.message ||
+                    "Unable to clear history",
+                    "error"
+                );
+
+            }
+
+        }
+
+
+        /*
+         * =====================================================
+         * ESCAPE HTML
+         * =====================================================
+         */
+
+        function escapeHtml(value) {
+
+            return String(value)
+
+                .replace(
+                    /&/g,
+                    "&amp;"
+                )
+
+                .replace(
+                    /</g,
+                    "&lt;"
+                )
+
+                .replace(
+                    />/g,
+                    "&gt;"
+                )
+
+                .replace(
+                    /"/g,
+                    "&quot;"
+                )
+
+                .replace(
+                    /'/g,
+                    "&#039;"
+                );
+
+        }
+
+
+        /*
+         * =====================================================
+         * PAGE LOAD
+         * =====================================================
+         */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            () => {
+
+                loadHistory();
+
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>
